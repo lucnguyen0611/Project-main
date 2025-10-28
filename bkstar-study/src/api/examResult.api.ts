@@ -1,9 +1,9 @@
-// src/api/examResult.api.ts
 import { apiClient } from "./axios";
 import { API_ENDPOINTS } from "@/constants/api.constants";
 import type {
     ApiExamResult,
-    CreateExamResultRequest
+    CreateExamResultRequest,
+    UpdateExamResultRequest
 } from "@/types";
 
 export const examResultApi = {
@@ -15,7 +15,7 @@ export const examResultApi = {
         const qExamGroup = encodeURIComponent(String(examGroupId));
 
         const res = await apiClient.get<ApiExamResult[]>(
-            `/exam_result/?student=${qStudent}&exam_group=${qExamGroup}`
+            `/exam_results/?student_id=${qStudent}&exam_group_id=${qExamGroup}`
         );
         return res.data;
     },
@@ -32,7 +32,7 @@ export const examResultApi = {
 
     updateExamReult: async (
         id: number,
-        payload: CreateExamResultRequest
+        payload: UpdateExamResultRequest
     ) => {
         const res = await apiClient.put(
             `${API_ENDPOINTS.EXAM_RESULT_UPDATE.replace(":id", id.toString())}`,

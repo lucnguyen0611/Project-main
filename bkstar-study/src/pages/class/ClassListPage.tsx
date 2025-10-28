@@ -302,13 +302,6 @@ const ClassListPage: React.FC = () => {
         setEditingClass(null);
     };
 
-    /**
-     * onSubmit handler passed into EditClassDialog.
-     * It receives payload: { name, code } and should return a Promise.
-     * We update remote via API, then update local state to reflect change.
-     *
-     * Note: EditClassDialog will show dialog-level error if this function rejects.
-     */
     const handleSubmitEdit = async (payload: { name: string; code: string }) => {
         if (!editingClass) {
             throw new Error("Không có lớp để chỉnh sửa");

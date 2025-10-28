@@ -9,21 +9,30 @@ import {
     TableRow,
     Typography,
     Paper,
+    useTheme,
 } from "@mui/material";
-import type { Course, UserClassI } from "@/types/user.types";
+import type { Course } from "@/types/user.types";
+import type { ClassUser } from "@/types/class.types.ts";
+import { getTeachers, getStudents } from "@/utils/class.utils";
 
 interface MemberProps {
-    course?: Course; // Có thể undefined khi chưa load xong
+    course?: Course;
 }
 
 export default function Member({ course }: MemberProps) {
-    // Lấy users từ course
-    const users: UserClassI[] = Array.isArray(course?.users) ? course!.users! : [];
+    const theme = useTheme();
 
-    // Phân loại giáo viên và học sinh
-    const teachers = users.filter((u) => u.role === "teacher");
-    const students = users.filter((u) => u.role === "student");
-    const members = [...teachers, ...students]; // giáo viên trước, học sinh sau
+    let teachers: ClassUser[] = [];
+    let students: ClassUser[] = [];
+
+    if (course) {
+        teachers = getTeachers(course);
+        students = getStudents(course);
+    }
+
+    // Giáo viên trước, học sinh sau
+    const members: ClassUser[] = [...teachers, ...students];
+    const hasMembers = members.length > 0;
 
     return (
         <Box>
@@ -46,53 +55,74 @@ export default function Member({ course }: MemberProps) {
                     <TableHead>
                         <TableRow>
                             <TableCell sx={{ fontWeight: "bold", color: "#666" }}>NO.</TableCell>
-                            <TableCell sx={{ fontWeight: "bold", color: "#666" }}>HỌ TÊN</TableCell>
+                            <TableCell sx={{ fontWeight: "bold", color: "#666" }}>Họ tên</TableCell>
                             <TableCell sx={{ fontWeight: "bold", color: "#666" }}>VỊ TRÍ</TableCell>
-                            <TableCell></TableCell>
+                            <TableCell sx={{ fontWeight: "bold", color: "#666" }}></TableCell>
                         </TableRow>
                     </TableHead>
 
                     <TableBody>
-                        {members.length === 0 ? (
+                        {!hasMembers ? (
                             <TableRow>
                                 <TableCell colSpan={4}>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
                                         {course ? "Chưa có thành viên" : "Đang tải dữ liệu..."}
                                     </Typography>
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            members.map((member: UserClassI, index: number) => (
-                                <TableRow
-                                    key={member.id ?? index}
-                                    sx={index % 2 !== 0 ? {} : { backgroundColor: "#f8f8f8" }}
-                                >
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell>{member.name ?? `#${member.id}`}</TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            label={member.role === "student" ? "Học sinh" : "Giáo viên"}
-                                            size="small"
-                                            sx={{
-                                                backgroundColor:
-                                                    member.role === "teacher"
-                                                        ? "rgba(255, 118, 117, 0.85)"
-                                                        : "rgb(46, 204, 113)",
-                                                color: "#fff",
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        {member.role === "teacher" && (
+                            members.map((member: ClassUser, index: number) => {
+                                const isTeacher = member.role === "teacher";
+                                const bg = index % 2 === 0 ? theme.palette.background.paper : "#f8f8f8";
+
+                                return (
+                                    <TableRow key={member.id ?? index} sx={{ backgroundColor: bg }}>
+                                        <TableCell>{index + 1}</TableCell>
+
+                                        <TableCell>
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                                <Box>
+                                                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                                        {member.name ?? `#${member.id}`}
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+                                        </TableCell>
+
+                                        <TableCell>
                                             <Chip
-                                                icon={<KeyIcon />}
+                                                label={isTeacher ? "Giáo viên" : "Học sinh"}
                                                 size="small"
-                                                sx={{ backgroundColor: "#f9ca24", color: "#fff" }}
+                                                sx={{
+                                                    backgroundColor: isTeacher
+                                                        ? "rgba(255,118,117,0.85)"
+                                                        : "rgb(46,204,113)",
+                                                    color: "#fff",
+                                                }}
                                             />
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                                        </TableCell>
+
+                                        <TableCell align="right">
+                                            {isTeacher && (
+                                                <svg
+                                                    stroke="currentColor"
+                                                    fill="currentColor"
+                                                    strokeWidth="0"
+                                                    viewBox="0 0 512 512"
+                                                    focusable="false"
+                                                    height="2em"
+                                                    width="2em"
+                                                    style={{ color: "gold" }}
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path d="M249.2 224c-14.2-40.2-55.1-72-100.2-72-57.2 0-101 46.8-101 104s45.8 104 103 104c45.1 0 84.1-31.8 98.2-72H352v64h69.1v-64H464v-64H249.2zm-97.6 66.5c-19 0-34.5-15.5-34.5-34.5s15.5-34.5 34.5-34.5 34.5 15.5 34.5 34.5-15.5 34.5-34.5 34.5z"></path>
+                                                </svg>
+
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
                         )}
                     </TableBody>
                 </Table>
@@ -100,18 +130,3 @@ export default function Member({ course }: MemberProps) {
         </Box>
     );
 }
-
-function KeyIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path
-                d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-    );
-}
-

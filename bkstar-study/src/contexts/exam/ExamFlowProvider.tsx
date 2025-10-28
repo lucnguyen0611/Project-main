@@ -49,7 +49,7 @@ export function ExamFlowProvider({ children }: { children: ReactNode }) {
         // Đánh dấu các đề là completed nếu tồn tại examResults cho exam.id, ngược lại locked
         let processed = exams.map((exam) => ({
             ...exam,
-            status: examResults.some((r) => r.exam === exam.id) ? "completed" : "locked",
+            status: examResults.some((r) => r.exam_id === exam.id) ? "completed" : "locked",
         }));
 
         // 2. Kiểm tra xem có đề nào đang mở khóa theo localStorage không
@@ -216,3 +216,288 @@ export const useExamFlow = () => {
     }
     return context;
 };
+
+
+
+
+//
+// import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+// // import { useNavigate } from "react-router-dom";
+// import type { ExamGroup, ExamWithStatus, Exam, ApiExamResult } from "@/types";
+// import { useAuth } from "@/contexts";
+// import { examGroupApi, examResultApi, examApi } from "@/api";
+//
+// interface ExamFlowContextType {
+//     isLoading: boolean;
+//     examsWithStatus: ExamWithStatus[];
+//     examGroupDetail?: ExamGroup;
+//     awaitingTime: number; // -1 khi không có countdown
+//     isUnlocking: boolean;
+//     startUnlockTimer: (completedExamId: number) => void;
+//     initializeExamData: (examGroupId: number) => Promise<void>;
+// }
+//
+// const ExamFlowContext = createContext<ExamFlowContextType | undefined>(undefined);
+//
+// export function ExamFlowProvider({ children }: { children: ReactNode }) {
+//     // const navigate = useNavigate();
+//     const { user, accessToken } = useAuth();
+//
+//     const [isLoading, setIsLoading] = useState(true);
+//     const [examGroupDetail, setExamGroupDetail] = useState<ExamGroup | undefined>(undefined);
+//     const [examsWithStatus, setExamsWithStatus] = useState<ExamWithStatus[]>([]);
+//     const [awaitingTime, setAwaitingTime] = useState<number>(-1);
+//     const [isUnlocking, setIsUnlocking] = useState<boolean>(false);
+//     const [activeExamGroupId, setActiveExamGroupId] = useState<number | null>(null);
+//
+//     const getUnlockStorageKey = (userId: number, examGroupId: number) => `unlock-${userId}-${examGroupId}`;
+//
+//     // Pure function: không gọi setState bên trong
+//     const computeUnlockState = (
+//         exams: Exam[],
+//         examResults: ApiExamResult[],
+//         examGroup: ExamGroup,
+//         userId: number,
+//         examGroupId: number
+//     ): { processed: ExamWithStatus[]; unlockingExamId?: number | null; remaining?: number | null } => {
+//         let processed: ExamWithStatus[] = exams.map((exam) => ({
+//             ...exam,
+//             status: examResults.some((r) => r.exam_id === exam.id) ? "completed" : "locked",
+//         }));
+//
+//         const unlockKey = getUnlockStorageKey(userId, examGroupId);
+//         const raw = localStorage.getItem(unlockKey);
+//         const unlockData = raw ? JSON.parse(raw) : null;
+//
+//         if (unlockData) {
+//             const elapsed = Math.floor((Date.now() - unlockData.start) / 1000);
+//             const remaining = examGroup.await_time - elapsed;
+//
+//             if (remaining > 0) {
+//                 processed = processed.map((e) => (e.id === unlockData.examId ? { ...e, status: "unlocking" } : e));
+//                 return { processed, unlockingExamId: unlockData.examId, remaining };
+//             } else {
+//                 // Time already passed -> mark unlocked and remove key
+//                 processed = processed.map((e) => (e.id === unlockData.examId ? { ...e, status: "unlocked" } : e));
+//                 try {
+//                     localStorage.removeItem(unlockKey);
+//                 } catch (err) {
+//                     // ignore
+//                 }
+//                 return { processed, unlockingExamId: null, remaining: null };
+//             }
+//         }
+//
+//         // Nếu không có unlockData: mở bài đầu tiên locked
+//         const firstLockedIndex = processed.findIndex((e) => e.status === "locked");
+//         if (firstLockedIndex !== -1) processed[firstLockedIndex].status = "unlocked";
+//
+//         return { processed, unlockingExamId: null, remaining: null };
+//     };
+//
+//     const initializeExamData = useCallback(
+//         async (examGroupId: number) => {
+//             setIsLoading(true);
+//             setActiveExamGroupId(examGroupId);
+//
+//             try {
+//                 const currentUserId = Number(user?.id ?? 0);
+//
+//                 const [groupData, examList, examResults] = await Promise.all([
+//                     examGroupApi.getExamGroup(examGroupId),
+//                     examApi.getExams(examGroupId),
+//                     examResultApi.getByStudentAndExamGroup(currentUserId, examGroupId),
+//                 ]);
+//
+//                 setExamGroupDetail(groupData);
+//
+//                 const { processed, unlockingExamId, remaining } = computeUnlockState(
+//                     examList,
+//                     examResults,
+//                     groupData,
+//                     currentUserId,
+//                     examGroupId
+//                 );
+//
+//                 setExamsWithStatus(processed);
+//
+//                 if (unlockingExamId && remaining && remaining > 0) {
+//                     setIsUnlocking(true);
+//                     setAwaitingTime(remaining);
+//                 } else {
+//                     setIsUnlocking(false);
+//                     setAwaitingTime(-1);
+//                 }
+//             } catch (err) {
+//                 console.error("❌ Error loading exam flow:", err);
+//             } finally {
+//                 setIsLoading(false);
+//             }
+//         },
+//         [accessToken, user]
+//     );
+//
+//     // Start unlock timer: chọn exam "next" theo index sau completedExamId
+//     const startUnlockTimer = useCallback(
+//         (completedExamId: number) => {
+//             if (!examGroupDetail || !user || !activeExamGroupId) return;
+//
+//             const userId = Number(user.id);
+//             const unlockKey = getUnlockStorageKey(userId, activeExamGroupId);
+//
+//             setExamsWithStatus((prev) => {
+//                 const completedIndex = prev.findIndex((e) => e.id === completedExamId);
+//                 // next locked after completedIndex
+//                 const nextLockedExam = prev.slice(completedIndex + 1).find((e) => e.status === "locked");
+//
+//                 if (nextLockedExam) {
+//                     try {
+//                         localStorage.setItem(unlockKey, JSON.stringify({ examId: nextLockedExam.id, start: Date.now() }));
+//                     } catch (err) {
+//                         console.error("Failed to write unlock key to localStorage", err);
+//                     }
+//
+//                     setIsUnlocking(true);
+//                     setAwaitingTime(examGroupDetail.await_time);
+//                 }
+//
+//                 return prev.map((exam) =>
+//                     exam.id === completedExamId
+//                         ? { ...exam, status: "completed" }
+//                         : nextLockedExam && exam.id === nextLockedExam.id
+//                             ? { ...exam, status: "unlocking" }
+//                             : exam
+//                 );
+//             });
+//         },
+//         [examGroupDetail, user, activeExamGroupId]
+//     );
+//
+//     // const startUnlockTimer = useCallback((completedExamId: number) => {
+//     //
+//     //     if (!examGroupDetail || !userId || !activeExamGroupId) return;
+//     //
+//     //     // pick one from locked exams to unlock
+//     //     setExamsWithStatus(prevExams => {
+//     //         let nextExamToUnlockId: number | undefined;
+//     //         const completedIndex: number = prevExams.findIndex(exam => exam.id === completedExamId);
+//     //         for (let i = completedIndex + 1; i < prevExams.length; i++) {
+//     //             if (prevExams[i].status === 'locked') {
+//     //                 nextExamToUnlockId = prevExams[i].id;
+//     //                 break;
+//     //             }
+//     //         }
+//     //
+//     //         if (nextExamToUnlockId) {
+//     //             localStorage.setItem(`unlockStartTime-${userId}-${activeExamGroupId}`, Date.now().toString());
+//     //             localStorage.setItem(`unlockingExamId-${userId}-${activeExamGroupId}`, nextExamToUnlockId.toString());
+//     //             setIsUnlocking(true);
+//     //             setAwaitingTime(examGroupDetail.await_time);
+//     //         }
+//     //
+//     //         return prevExams.map(exam => {
+//     //             if (exam.id === completedExamId) return {...exam, status: 'completed'};
+//     //             if (exam.id === nextExamToUnlockId) return {...exam, status: 'unlocking'};
+//     //             return exam;
+//     //         });
+//     //     });
+//     // }, [examGroupDetail, userId, activeExamGroupId]);
+//
+//
+//     // Timer effect: countdown và finalize unlock
+//     useEffect(() => {
+//         if (!isUnlocking || awaitingTime <= 0) return;
+//
+//         const timer = setInterval(() => {
+//             setAwaitingTime((t) => {
+//                 if (t <= 1) {
+//                     // finalize unlock
+//                     setExamsWithStatus((prev) => {
+//                         const unlockingExam = prev.find((e) => e.status === "unlocking");
+//                         if (!unlockingExam) return prev;
+//
+//                         if (user && activeExamGroupId) {
+//                             try {
+//                                 localStorage.removeItem(getUnlockStorageKey(Number(user.id), activeExamGroupId));
+//                             } catch (err) {
+//                                 // ignore
+//                             }
+//                         }
+//
+//                         const next = prev.map((ex) => (ex.id === unlockingExam.id ? { ...ex, status: "unlocked" } : ex));
+//                         return next;
+//                     });
+//
+//                     setIsUnlocking(false);
+//                     return -1; // indicate no active timer
+//                 }
+//                 return t - 1;
+//             });
+//         }, 1000);
+//
+//         return () => clearInterval(timer);
+//     }, [isUnlocking, awaitingTime, user, activeExamGroupId]);
+//
+//     // Sync between tabs: nếu một tab thay đổi localStorage, cập nhật state tương ứng
+//     useEffect(() => {
+//         const handler = (e: StorageEvent) => {
+//             if (!activeExamGroupId || !user) return;
+//             const expectedKey = getUnlockStorageKey(Number(user.id), activeExamGroupId);
+//             if (e.key !== expectedKey) return;
+//
+//             // Recompute simple: reload examsWithStatus based on current localStorage
+//             (async () => {
+//                 try {
+//                     const currentUserId = Number(user.id);
+//                     if (!activeExamGroupId) return;
+//                     const [groupData, examList, examResults] = await Promise.all([
+//                         examGroupApi.getExamGroup(activeExamGroupId),
+//                         examApi.getExams(activeExamGroupId),
+//                         examResultApi.getByStudentAndExamGroup(currentUserId, activeExamGroupId),
+//                     ]);
+//
+//                     const { processed, unlockingExamId, remaining } = computeUnlockState(
+//                         examList,
+//                         examResults,
+//                         groupData,
+//                         currentUserId,
+//                         activeExamGroupId
+//                     );
+//
+//                     setExamGroupDetail(groupData);
+//                     setExamsWithStatus(processed);
+//                     if (unlockingExamId && remaining && remaining > 0) {
+//                         setIsUnlocking(true);
+//                         setAwaitingTime(remaining);
+//                     } else {
+//                         setIsUnlocking(false);
+//                         setAwaitingTime(-1);
+//                     }
+//                 } catch (err) {
+//                     console.error("Error syncing exam flow from storage event", err);
+//                 }
+//             })();
+//         };
+//
+//         window.addEventListener("storage", handler);
+//         return () => window.removeEventListener("storage", handler);
+//     }, [activeExamGroupId, user]);
+//
+//     const value: ExamFlowContextType = {
+//         isLoading,
+//         examsWithStatus,
+//         examGroupDetail,
+//         awaitingTime,
+//         isUnlocking,
+//         startUnlockTimer,
+//         initializeExamData,
+//     };
+//
+//     return <ExamFlowContext.Provider value={value}>{children}</ExamFlowContext.Provider>;
+// }
+//
+// export const useExamFlow = () => {
+//     const context = useContext(ExamFlowContext);
+//     if (!context) throw new Error("useExamFlow must be used inside an ExamFlowProvider");
+//     return context;
+// };

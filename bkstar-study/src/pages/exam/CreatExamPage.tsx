@@ -1021,7 +1021,6 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import {apiClient} from "@/api/axios.ts"
 import { examApi } from "@/api/exam.api"; // dùng để lấy detail khi edit
 import type { ExamItem } from "@/types";
@@ -1054,21 +1053,21 @@ export default function CreatExamPage({ mode }: Props) {
     const [originalQuestions, setOriginalQuestions] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // Create axios instance with correct baseURL (prefer environment variable)
-    const api = axios.create({
-        baseURL: (import.meta.env && import.meta.env.VITE_API_BASE) ? (import.meta.env.VITE_API_BASE as string) : "http://localhost:3000",
-        // bạn có thể thêm headers mặc định ở đây nếu cần (eg. Authorization)
-        // headers: { Accept: 'application/json' }
-    });
-
-    // helper nếu cần chuyển sang base64 (nên tránh với file lớn)
-    const toBase64 = (file: File): Promise<string> =>
-        new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve((reader.result as string).split(",")[1]);
-            reader.onerror = reject;
-        });
+    // // Create axios instance with correct baseURL (prefer environment variable)
+    // const api = axios.create({
+    //     baseURL: (import.meta.env && import.meta.env.VITE_API_BASE) ? (import.meta.env.VITE_API_BASE as string) : "http://localhost:3000",
+    //     // bạn có thể thêm headers mặc định ở đây nếu cần (eg. Authorization)
+    //     // headers: { Accept: 'application/json' }
+    // });
+    //
+    // // helper nếu cần chuyển sang base64 (nên tránh với file lớn)
+    // const toBase64 = (file: File): Promise<string> =>
+    //     new Promise((resolve, reject) => {
+    //         const reader = new FileReader();
+    //         reader.readAsDataURL(file);
+    //         reader.onload = () => resolve((reader.result as string).split(",")[1]);
+    //         reader.onerror = reject;
+    //     });
 
     useEffect(() => {
         if (mode !== "edit" || !examId) return;

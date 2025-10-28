@@ -1,15 +1,16 @@
 export interface ClassUser {
     id: number;
     name: string;
-    status: "confirming" | "pending" | "rejected";
     role: "teacher" | "student";
+    status: "confirming" | "pending" | "rejected";
 }
 
 export interface Class {
     id: number;
     name: string;
     code: string;
-    users: ClassUser[];
+    students: ClassUser[];
+    teachers: ClassUser[];
     created_at?: string;
     updated_at?: string;
     description?: string;

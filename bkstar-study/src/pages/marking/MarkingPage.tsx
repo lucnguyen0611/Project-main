@@ -106,17 +106,16 @@ const MarkingPage: React.FC = () => {
                 }
 
                 return {
+                    question_id: ans.id,
                     id: ans.id,
-                    question: ans.question,
                     answer: ans.answer,
                     is_correct: isCorrect
                 };
             });
 
             const updatePayload = {
-                id: current.id,
-                exam: current.exam,
-                user: current.user,
+                exam_id: current.exam_id,
+                user_id: current.user_id,
                 status: "remarked",
                 questions: questionsForPayload,
                 device: current.device ?? "desktop"

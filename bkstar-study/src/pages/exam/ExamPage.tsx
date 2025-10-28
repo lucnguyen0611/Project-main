@@ -3,15 +3,18 @@ import { Box, Alert } from "@mui/material";
 import { useParams, useNavigate, Outlet, useLocation } from "react-router-dom";
 import { examGroupApi } from "@/api/examGroup.api";
 import { examApi } from "@/api/exam.api";
+import { classApi } from "@/api/class.api";
 import CreatExamGroupDialog from "@/components/dialog/CreatExamGroupDialog.tsx";
 import { LoadingData } from "@/components/common/LoadingData";
 import { ExamHeader, ExamGrid, ResultGroup } from "@/components/exam";
 import type { ExamGroup, ExamItem } from "@/types";
+import type { Course } from "@/types/user.types"; // adjust import if your type name differs
 import { useAuth, useToast } from "@/contexts";
 
 const ExamPage: React.FC = () => {
     const { classId, examGroupId } = useParams<{ classId: string; examGroupId: string }>();
     const groupId = Number(examGroupId);
+    const classIdNum = Number(classId);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -20,6 +23,7 @@ const ExamPage: React.FC = () => {
 
     const [examGroup, setExamGroup] = useState<ExamGroup | null>(null);
     const [exams, setExams] = useState<ExamItem[]>([]);
+    const [classData, setClassData] = useState<Course | null>(null); // class info (contains students/teachers)
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,26 +50,44 @@ const ExamPage: React.FC = () => {
         }
     }, []);
 
+    const fetchClass = useCallback(async (cid: number) => {
+        try {
+            const res = await classApi.getClassById(cid);
+            setClassData(res ?? null);
+        } catch (err) {
+            console.error("Không thể lấy thông tin lớp:", err);
+            setError("Không thể tải thông tin lớp.");
+        }
+    }, []);
+
     useEffect(() => {
         setExamGroup(null);
         setExams([]);
+        setClassData(null);
         setError(null);
         setLoading(true);
 
+        // Validate groupId and classId
         if (!isFinite(groupId) || groupId <= 0) {
             setError("ID nhóm bài thi không hợp lệ.");
             setLoading(false);
             return;
         }
+        if (!isFinite(classIdNum) || classIdNum <= 0) {
+            setError("ID lớp học không hợp lệ.");
+            setLoading(false);
+            return;
+        }
 
         const load = async () => {
-            await Promise.all([fetchExamGroup(groupId), fetchExams(groupId)]);
+            await Promise.all([fetchExamGroup(groupId), fetchExams(groupId), fetchClass(classIdNum)]);
             setLoading(false);
         };
         void load();
-    }, [groupId, fetchExamGroup, fetchExams]);
+    }, [groupId, classIdNum, fetchExamGroup, fetchExams, fetchClass]);
 
-    const students = (examGroup?.users ?? []).map((u) => ({
+    // students taken from classData (preferred) — fallback to examGroup.users if classData missing
+    const students = (classData?.students ?? examGroup?.users ?? []).map((u: any) => ({
         id: u.id,
         name: u.name,
         email: u.email,
@@ -90,9 +112,10 @@ const ExamPage: React.FC = () => {
             setDialogOpen(false);
         } catch (err) {
             console.error("Cập nhật nhóm thất bại:", err);
-            showToast("Cập nhật nhóm bài thi thất bại!", "success");
+            showToast("Cập nhật nhóm bài thi thất bại!", "error");
         } finally {
             setDialogLoading(false);
+            // keep dialogOpen false to close after attempt
             setDialogOpen(false);
         }
     };

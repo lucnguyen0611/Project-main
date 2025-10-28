@@ -1,61 +1,29 @@
-import type { Class, ClassUser } from "@/types/class.types";
+import type { Class } from "@/types/class.types";
+import type { Course } from "@/types/user.types";
 
 /**
  * Lấy số thành viên đã xác nhận trong lớp
  */
 export const getConfirmedMemberCount = (classData: Class): number => {
-    if (!classData.users || !Array.isArray(classData.users)) {
-        return 0;
-    }
-    return classData.users.filter((user) => user.status === "confirming").length;
+    const studentCount = Array.isArray(classData.students)
+        ? classData.students.length
+        : 0;
+    const teacherCount = Array.isArray(classData.teachers)
+        ? classData.teachers.length
+        : 0;
+    return studentCount + teacherCount;
 };
 
 /**
- * Lấy danh sách teacher trong lớp
+ * Lấy danh sách học sinh trong lớp
  */
-export const getTeachers = (classData: Class): ClassUser[] => {
-    if (!classData.users || !Array.isArray(classData.users)) {
-        return [];
-    }
-    return classData.users.filter((user) => user.role === "teacher");
+export const getStudents = (classData: Course) => {
+    return Array.isArray(classData.students) ? classData.students : [];
 };
 
 /**
- * Lấy danh sách student trong lớp
+ * Lấy danh sách giáo viên trong lớp
  */
-export const getStudents = (classData: Class): ClassUser[] => {
-    if (!classData.users || !Array.isArray(classData.users)) {
-        return [];
-    }
-    return classData.users.filter((user) => user.role === "student");
-};
-
-/**
- * Kiểm tra xem user có phải là teacher của lớp không
- */
-export const isTeacherOfClass = (classData: Class, userId: number): boolean => {
-    if (!classData.users || !Array.isArray(classData.users)) {
-        return false;
-    }
-    return classData.users.some(
-        (user) =>
-            user.id === userId &&
-            user.role === "teacher" &&
-            user.status === "confirming"
-    );
-};
-
-/**
- * Kiểm tra xem user có phải là student của lớp không
- */
-export const isStudentOfClass = (classData: Class, userId: number): boolean => {
-    if (!classData.users || !Array.isArray(classData.users)) {
-        return false;
-    }
-    return classData.users.some(
-        (user) =>
-            user.id === userId &&
-            user.role === "student" &&
-            user.status === "confirming"
-    );
+export const getTeachers = (classData: Course) => {
+    return Array.isArray(classData.teachers) ? classData.teachers : [];
 };

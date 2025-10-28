@@ -20,6 +20,8 @@ export default function StudentExamGroup() {
         initializeExamData
     } = useExamFlow();
 
+    console.log('examGroupDetail', examGroupDetail)
+
     const handleBackToExamGroupsList = () => {
         navigate(`/class/${classId}/exam`);
     };
@@ -45,10 +47,10 @@ export default function StudentExamGroup() {
                 <Typography variant="h6" fontWeight="600">{`>`} Chi tiết bài thi</Typography>
             </Box>
 
-            <Box sx={{mb: 3, p: 2, backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #0000ff'}}>
-                <Typography variant={"h6"} fontWeight={600} color={'info'}>Tên bài thi: {examGroupDetail?.name}</Typography>
-                <Typography variant={"h6"} fontWeight={600} color={'error'}>Thời gian chờ giữa các đề bài: {awaitTimeInMinutes} phút</Typography>
-                <Typography variant={"h6"} fontWeight={600} color={'success'}>Trạng thái hoàn thành: {numberOfCompletedExams}/{examsWithStatus.length}</Typography>
+            <Box sx={{mb: 3, p: 2, backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #31b5ee'}}>
+                <Typography fontSize={18} fontWeight={600} color={'#4a5568'}>Tên bài thi: {examGroupDetail?.name}</Typography>
+                <Typography fontSize={18} fontWeight={600} color={'#4a5568'}>Thời gian chờ giữa các đề bài: {awaitTimeInMinutes} phút</Typography>
+                <Typography fontSize={18} fontWeight={600} color={'#4a5568'}>Trạng thái hoàn thành: {numberOfCompletedExams}/{examsWithStatus.length}</Typography>
             </Box>
 
             <Box><Typography variant={"h6"} fontWeight={600} color={'primary'}>Danh sách đề bài</Typography></Box>
@@ -101,13 +103,13 @@ function ExamBox({exam, awaitingTime}: { exam: ExamWithStatus, awaitingTime: num
 function ExamStatusLabel({exam, awaitingTime}: { exam: ExamWithStatus, awaitingTime: number }){
     switch(exam.status) {
         case 'completed':
-            return <Typography color={'primary'} sx={{fontWeight: 600}}>Đã hoàn thành</Typography>;
+            return <Typography color={'#3182ce'} sx={{fontWeight: 600}}>Đã hoàn thành</Typography>;
         case 'locked':
-            return <Typography color={'error'} sx={{fontWeight: 600}}>Chưa mở</Typography>;
+            return <Typography color={'#e53e3e'} sx={{fontWeight: 600}}>Chưa mở</Typography>;
         case 'unlocking':
-            return <Typography color={'warning'} sx={{fontWeight: 600}}>Mở sau: {awaitingTime}s</Typography>;
+            return <Typography color={'#ffb24f'} sx={{fontWeight: 600}}>Mở sau: {awaitingTime}s</Typography>;
         case 'unlocked':
-            return <Typography color={'success.dark'} sx={{fontWeight: 600}}>Đang mở</Typography>;
+            return <Typography color={'#38a169'} sx={{fontWeight: 600}}>Đang mở</Typography>;
         default: return <></>;
     }
 }

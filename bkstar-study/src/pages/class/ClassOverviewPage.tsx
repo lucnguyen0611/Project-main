@@ -15,23 +15,28 @@ import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import { useParams } from "react-router-dom";
 import RecentActivity from "@/components/recentActivity/RecentActivity";
 import Member from "@/components/member/Member";
-import type { UserClassI } from "@/types/user.types";
 import type { ExamGroup } from "@/types/exam.types";
 import type { Course } from "@/types/user.types";
 import { classApi } from "@/api/class.api";
 import { examGroupApi } from "@/api/examGroup.api";
-import {LoadingData} from "@/components/common/LoadingData.tsx";
+import { LoadingData } from "@/components/common/LoadingData.tsx";
+import { getConfirmedMemberCount } from "@/utils/class.utils";
 
-export default function ClassOverviewPage(){
+export default function ClassOverviewPage() {
     const { classId: classIdParam } = useParams<{ classId?: string }>();
     const classId = Number(classIdParam ?? NaN);
-    const [course, setCourse] = useState<Course>({
+
+    // initial course shape matches dữ liệu bạn đưa: students, teachers
+    const initialCourse: Course = {
         id: 0,
-        code: '',
-        name: '',
-        users: []
-    });
-    const [examGroups, setExamGroups] =  useState<ExamGroup[]>([])
+        code: "",
+        name: "",
+        students: [],
+        teachers: [],
+    };
+
+    const [course, setCourse] = useState<Course>(initialCourse);
+    const [examGroups, setExamGroups] = useState<ExamGroup[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -46,45 +51,55 @@ export default function ClassOverviewPage(){
                 examGroupApi.getExamGroupByClassId(classId),
             ]);
 
-            setCourse(courseData ?? null);
-            setExamGroups(examGroupsData ?? []);
-        } catch (err) {
-            console.log(err);
-            console.error("Error loading classes:", err);
+            // Ensure we always set a course object with arrays
+            const safeCourse: Course = {
+                id: courseData?.id ?? initialCourse.id,
+                code: courseData?.code ?? initialCourse.code,
+                name: courseData?.name ?? initialCourse.name,
+                students: Array.isArray(courseData?.students) ? courseData!.students : [],
+                teachers: Array.isArray(courseData?.teachers) ? courseData!.teachers : [],
+            };
+
+            setCourse(safeCourse);
+            setExamGroups(Array.isArray(examGroupsData) ? examGroupsData : []);
+        } catch (err: any) {
+            console.error("Error loading class overview:", err);
+            setError("Không thể tải thông tin lớp học");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }, [classId]);
 
     useEffect(() => {
-        fetchAll();
-    }, [fetchAll]);
+        if (!Number.isNaN(classId)) {
+            fetchAll();
+        } else {
+            setLoading(false);
+            setError("Class id không hợp lệ");
+        }
+    }, [fetchAll, classId]);
+    const teachersName: string = course.teachers
+        .map((t) => t?.name ?? "")
+        .filter(Boolean)
+        .join(", ");
 
-    const users: UserClassI[] = Array.isArray(course.users) ? course.users : [];
-
-    // Phân loại teacher / student dựa trên trường role
-    const teachers = users.filter(u => u.role === "teacher");
-    const students = users.filter(u => u.role === "student");
-
-    const teachersName: string = teachers.map(t => t.name ?? "").filter(Boolean).join(", ");
-    const newUsers = [...teachers, ...students];
-
-    /*********** share invite link *************/
     const baseUrl: string = window.location.origin;
-    const linkToInvite = `${baseUrl}/invite?class=${course.id}`;
+    // dùng đường dẫn invite theo class id (consistent với các chỗ khác)
+    const linkToInvite = `${baseUrl}/invite/${course.id}`;
     const onCopyLink = () => {
-        navigator.clipboard.writeText(linkToInvite).then(() => {
-            // toast.info('Đã sao chép link lớp học!');
-        }).catch((err) => {
-            // toast.error('Sao chép thất bại !');
-            console.error('Failed to copy link to clipboard: ', err);
-        });
+        navigator.clipboard
+            .writeText(linkToInvite)
+            .then(() => {
+                // nếu bạn có toast, gọi ở đây
+                // showToast("Đã sao chép link lớp học!");
+            })
+            .catch((err) => {
+                console.error("Failed to copy link to clipboard: ", err);
+            });
     };
 
     if (loading) {
-        return (
-            <LoadingData/>
-        );
+        return <LoadingData />;
     }
 
     return (
@@ -97,8 +112,8 @@ export default function ClassOverviewPage(){
                 >
                     {error}
                 </Alert>
-            ): (
-                <Grid >
+            ) : (
+                <Grid>
                     <Grid size={{ xs: 12, lg: 8 }}>
                         {/* Header section */}
                         <Paper
@@ -107,13 +122,14 @@ export default function ClassOverviewPage(){
                                 p: 3,
                                 mb: 3,
                                 borderRadius: 2,
-                                backgroundColor: '#3498db',
-                                color: 'white'
-                            }}>
+                                backgroundColor: "#3498db",
+                                color: "white",
+                            }}
+                        >
                             <Box>
                                 <Box>
                                     <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
-                                        <AssignmentIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                                        <AssignmentIcon sx={{ mr: 1, verticalAlign: "middle" }} />
                                         {course.name ?? "Tên lớp"}
                                     </Typography>
 
@@ -121,29 +137,31 @@ export default function ClassOverviewPage(){
                                         Giáo viên: {teachersName || "Chưa có giáo viên"}
                                     </Typography>
 
-                                    <Box sx={{ display: 'flex', alignItems: 'flex-end', mt: 2, gap: '10px' }}>
+                                    <Box
+                                        sx={{ display: "flex", alignItems: "flex-end", mt: 2, gap: "10px" }}
+                                    >
                                         <Typography variant="body1" sx={{ opacity: 0.9 }}>
                                             Chia sẻ lớp học
                                         </Typography>
 
-                                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                                            <Tooltip title={'Copy link mời vào lớp'} arrow>
+                                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                            <Tooltip title={"Copy link mời vào lớp"} arrow>
                                                 <Button
                                                     variant="outlined"
                                                     startIcon={<ContentCopyIcon />}
                                                     size="small"
                                                     sx={{
                                                         mt: 1,
-                                                        color: 'white',
-                                                        borderColor: 'white',
-                                                        '&:hover': {
-                                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                                            borderColor: 'white',
-                                                        }
+                                                        color: "white",
+                                                        borderColor: "white",
+                                                        "&:hover": {
+                                                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                                            borderColor: "white",
+                                                        },
                                                     }}
                                                     onClick={onCopyLink}
                                                 >
-                                                    <Typography variant='caption' sx={{ opacity: 0.9 }}>
+                                                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
                                                         Sao chép liên kết
                                                     </Typography>
                                                 </Button>
@@ -158,10 +176,10 @@ export default function ClassOverviewPage(){
                         <Grid container spacing={2}>
                             <Grid size={6}>
                                 <Paper elevation={0} sx={{ p: 2, borderRadius: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                        <PeopleIcon sx={{ color: '#3498db', mr: 2, fontSize: 48 }} />
+                                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                                        <PeopleIcon sx={{ color: "#3498db", mr: 2, fontSize: 48 }} />
                                         <Typography variant="h5" fontWeight="medium">
-                                            {newUsers.length} Thành Viên
+                                            {getConfirmedMemberCount(course)} Thành Viên
                                         </Typography>
                                     </Box>
                                 </Paper>
@@ -169,8 +187,10 @@ export default function ClassOverviewPage(){
 
                             <Grid size={6}>
                                 <Paper elevation={0} sx={{ p: 2, borderRadius: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                        <ContentCopyOutlinedIcon sx={{ color: '#3498db', mr: 2, fontSize: 48 }} />
+                                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                                        <ContentCopyOutlinedIcon
+                                            sx={{ color: "#3498db", mr: 2, fontSize: 48 }}
+                                        />
                                         <Typography variant="h5" fontWeight="medium">
                                             {Array.isArray(examGroups) ? examGroups.length : 0} Bài Kiểm Tra
                                         </Typography>

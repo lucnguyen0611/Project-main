@@ -1,3 +1,5 @@
+import type {ClassUser} from "@/types/class.types.ts";
+
 export interface Avatar {
     id: number;
     url: string;
@@ -38,16 +40,10 @@ export interface ChangePasswordResponse {
     success: boolean;
 }
 
-export interface UserClassI {
-    id: number;
-    name: string;
-    role: 'student' | 'teacher' | 'admin';
-    status: 'pending' | 'confirming' | 'rejected';
-}
-
 export interface Course {
     id: number,
     code: string,
     name: string,
-    users: UserClassI[],
+    students: ClassUser[];
+    teachers: ClassUser[];
 }

@@ -19,7 +19,7 @@ export interface Action {
 export interface ExamDoing{
     examName: string,
     examCode: string,
-    examFile: ExamFileI,
+    file: ExamFileI,
     questions: Answer[],
     timeLeft: number,
     device: string
@@ -36,8 +36,8 @@ export interface ApiExamAnswer {
 
 export interface ApiExamResult {
     id: number;
-    exam: number;
-    user: number;
+    exam_id: number;
+    user_id: number;
     device: string | null;
     created_at: string;               // ISO timestamp
     answers: ApiExamAnswer[];         // mảng câu trả lời
@@ -75,14 +75,30 @@ export interface ExamResult {
 }
 
 export interface CreateExamResultQuestion {
-    question: number;   // id câu hỏi
+    question_id: number;   // id câu hỏi
     answer: string;     // câu trả lời (chuỗi), trống nếu chưa trả lời
 }
 
 export interface CreateExamResultRequest {
     device: string; // "desktop" | "mobile" | ...
-    exam: number | string;
-    user: number | string;
+    exam_id: number | string;
+    user_id: number | string;
     status: string; // "doing" | "finished" | ...
     questions: CreateExamResultQuestion[];
 }
+
+export interface UpdateExamResultQuestion {
+    question_id: number;   // id câu hỏi
+    answer: string;     // câu trả lời (chuỗi), trống nếu chưa trả lời
+    id: number;
+    is_correct: boolean[] | null;
+}
+
+export interface UpdateExamResultRequest {
+    device: string; // "desktop" | "mobile" | ...
+    exam_id: number | string;
+    user_id: number | string;
+    status: string; // "doing" | "finished" | ...
+    questions: UpdateExamResultQuestion[];
+}
+

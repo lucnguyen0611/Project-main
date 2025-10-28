@@ -27,9 +27,10 @@ export const ExamHeader: React.FC<ExamGroupHeaderProps> = ({ examGroup, onEdit, 
                 sx={{
                    display: "flex",
                     flexDirection: "revert",
+                    justifyContent: "space-between",
                 }}
             >
-                <Grid size={{ xs: 12, md: 10 }}>
+                <Grid>
                     <Box>
                         <Typography sx={{ fontWeight: 700, mb: 0.5, color: "text.primary" }}>
                             Tên bài thi: <Box component="span" sx={{ fontWeight: 700, ml: 0.5 }}>{examGroup.name}</Box>
@@ -46,7 +47,7 @@ export const ExamHeader: React.FC<ExamGroupHeaderProps> = ({ examGroup, onEdit, 
                 </Grid>
 
                 {isTeacher && (
-                    <Grid size={{ xs: 12, md: 2 }} >
+                    <Grid>
                         <Button
                             size={"small"}
                             variant="contained"
