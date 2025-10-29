@@ -18,13 +18,13 @@ export interface UserBase {
   parent_phone?: string | null;
 }
 
-export interface UserI extends UserBase{
+export interface UserI extends UserBase {
   id: number;
   role: Role;
   avatar: number | null;
 }
 
-export interface UserReqI extends UserBase {}
+export type UserReqI = UserBase;
 
 export interface UserResI extends Omit<UserI, 'avatar'> {
   avatar_info: AvatarInfo | null;
@@ -59,4 +59,8 @@ export interface TokenPayloadData {
 export interface ChangePasswordReqI {
   old_password: string;
   new_password: string;
+}
+
+export interface RequestWithUser extends Request {
+  user: UserResI;
 }

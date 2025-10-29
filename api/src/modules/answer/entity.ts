@@ -1,22 +1,22 @@
 import {Entity, Column, ManyToOne, JoinColumn} from 'typeorm';
-import {BaseEntity} from "@/modules/base/entity";
-import {QuestionEntity} from "@/modules/question/entity";
-import {ExamResultEntity} from "@/modules/exam_result/entity";
+import {BaseEntity} from '@/modules/base/entity';
+import {QuestionEntity} from '@/modules/question/entity';
+import {ExamResultEntity} from '@/modules/exam_result/entity';
 
 @Entity('answer')
 export class AnswerEntity extends BaseEntity {
     @Column()
     exam_result_id: number;
 
-    @ManyToOne(()=> ExamResultEntity)
-    @JoinColumn({ name: 'exam_result_id' })
-    exam_result: ExamResultEntity
+    @ManyToOne(() => ExamResultEntity)
+    @JoinColumn({name: 'exam_result_id'})
+    exam_result: ExamResultEntity;
 
     @Column()
     question_id: number;
 
-    @ManyToOne(()=> QuestionEntity)
-    @JoinColumn({ name: 'question_id' })
+    @ManyToOne(() => QuestionEntity)
+    @JoinColumn({name: 'question_id'})
     question: QuestionEntity;
 
     @Column()
@@ -29,5 +29,4 @@ export class AnswerEntity extends BaseEntity {
         default: null,
     })
     is_correct: boolean[] | null;
-
 }

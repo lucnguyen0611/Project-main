@@ -10,7 +10,8 @@ export abstract class BaseCascadeSubscriber<T extends BaseEntity>
 
     protected constructor(
         private readonly cascades: { childEntity: any; foreignKey: string }[]
-    ) {}
+    ) {
+    }
 
 
     /**
@@ -66,7 +67,7 @@ export abstract class BaseCascadeSubscriber<T extends BaseEntity>
             if (!children.length) continue;
 
             // update each child and save to trigger their subscribers (for deep cascade)
-            for (const child of children){
+            for (const child of children) {
                 child.deleted_by = deleted_by;
                 child.deleted_at = now;
                 child.active = false;

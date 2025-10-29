@@ -21,4 +21,5 @@ import {ExamResultController} from "@/modules/exam_result/controller";
         useClass: ExamResultService
     }],
 })
-export class ExamResultModule {}
+export class ExamResultModule {
+}

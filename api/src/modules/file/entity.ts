@@ -1,10 +1,10 @@
-import { BaseEntity } from '@/modules/base/entity';
+import {BaseEntity} from '@/modules/base/entity';
 import {Entity, Column, OneToOne, JoinColumn} from "typeorm";
 import {UserEntity} from "@/modules/user/entity";
 import {ExamEntity} from "@/modules/exam/entity";
 
 @Entity('file')
-export class FileEntity extends BaseEntity{
+export class FileEntity extends BaseEntity {
     @Column({
         name: 'public_id',
         unique: true
@@ -37,9 +37,9 @@ export class FileEntity extends BaseEntity{
     @Column()
     size: number;
 
-    @OneToOne(()=>UserEntity, user => user.file)
+    @OneToOne(() => UserEntity, user => user.file)
     user: UserEntity;
 
-    @OneToOne(()=>ExamEntity, exam => exam.file)
+    @OneToOne(() => ExamEntity, exam => exam.file)
     exam: ExamEntity;
 }

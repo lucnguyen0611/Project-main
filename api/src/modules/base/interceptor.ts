@@ -9,18 +9,18 @@ export abstract class BaseDataInterceptor implements NestInterceptor {
         );
     }
 
+    abstract transform(item: any, context: ExecutionContext): any;
+
     private processData(data: any, context: ExecutionContext) {
-        if(!data) return data;
+        if (!data) return data;
 
         // if data is array, transform each member of data
-        if(Array.isArray(data)){
+        if (Array.isArray(data)) {
             return data.map(item => this.transform(item, context));
         }
 
         // if data is an object
         return this.transform(data, context);
     }
-
-    abstract transform(item: any, context: ExecutionContext): any;
 }
 

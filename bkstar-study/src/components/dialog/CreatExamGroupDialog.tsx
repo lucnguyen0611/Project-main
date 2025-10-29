@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TextField, Box, Alert } from "@mui/material";
-import DialogContainer from "@/components/dialog/DialogContainer.tsx"; // cập nhật path nếu cần
+import DialogContainer from "@/components/dialog/DialogContainer.tsx";
+import { validateRequired } from "@/utils/validation.utils";
 
 interface DialogPayload {
     name: string;
@@ -13,83 +14,111 @@ interface Props {
     onClose: () => void;
     onSubmit: (payload: DialogPayload) => Promise<void>;
     isLoading?: boolean;
-    initialData?: { name?: string; awaitTime?: number; startDate?: string }; // awaitTime in seconds (server) or minutes? we assume seconds
+    initialData?: { name?: string; awaitTime?: number; startDate?: string };
     dialogTitle?: string;
     mode?: "create" | "edit";
     onDelete?: () => void;
 }
 
 export default function CreateExamGroupDialog({
-                                       isOpen,
-                                       onClose,
-                                       onSubmit,
-                                       isLoading = false,
-                                       initialData,
-                                       dialogTitle,
-                                       mode = "create",
-                                       onDelete,
-                                   }: Props) {
-    const [formData, setFormData] = useState<{ name: string; awaitTimeMin: number | ""; startDate: string }>({
+                                                  isOpen,
+                                                  onClose,
+                                                  onSubmit,
+                                                  isLoading = false,
+                                                  initialData,
+                                                  dialogTitle,
+                                                  mode = "create",
+                                                  onDelete,
+                                              }: Props) {
+    const [formData, setFormData] = useState<{
+        name: string;
+        awaitTimeMin: number | "";
+        startDate: string;
+    }>({
         name: "",
-        awaitTimeMin: 0,
+        awaitTimeMin: "",
         startDate: "",
     });
+
+    const [validationErrors, setValidationErrors] = useState<{
+        name?: string;
+        awaitTimeMin?: string;
+        startDate?: string;
+    }>({});
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Prefill when dialog opens
+    // Prefill data when dialog opens
     useEffect(() => {
         if (isOpen) {
             const rawAwait = initialData?.awaitTime ?? 0;
-            const awaitMin = Number(rawAwait) ? Number(rawAwait) / 60 : 0;
+            const awaitMin = Number(rawAwait) ? Number(rawAwait) / 60 : "";
             setFormData({
                 name: initialData?.name ?? "",
                 awaitTimeMin: awaitMin,
                 startDate: initialData?.startDate ?? "",
             });
+            setValidationErrors({});
             setError(null);
         } else {
-            setFormData({ name: "", awaitTimeMin: 0, startDate: "" });
+            setFormData({ name: "", awaitTimeMin: "", startDate: "" });
+            setValidationErrors({});
             setError(null);
             setSubmitting(false);
         }
     }, [isOpen, initialData]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === "awaitTimeMin" ? (value === "" ? "" : Number(value)) : value,
-        }));
+    /** Validate form fields */
+    const validateForm = (): boolean => {
+        const errors: typeof validationErrors = {};
+
+        // validate name
+        const nameValidation = validateRequired(formData.name, "Tên bài thi");
+        if (!nameValidation.isValid) {
+            errors.name = nameValidation.errors[0];
+        }
+
+        // validate awaitTimeMin
+        if (formData.awaitTimeMin === "" || Number(formData.awaitTimeMin) <= 0) {
+            errors.awaitTimeMin = "Thời gian chờ phải lớn hơn 0";
+        }
+
+        // validate startDate
+        const dateValidation = validateRequired(formData.startDate, "Ngày bắt đầu");
+        if (!dateValidation.isValid) {
+            errors.startDate = dateValidation.errors[0];
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
-    const validate = (): string | null => {
-        if (!formData.name || !formData.name.trim()) return "Tên không được để trống";
-        if (formData.awaitTimeMin === "" || Number.isNaN(Number(formData.awaitTimeMin))) return "Thời gian chờ phải là số";
-        if (!formData.startDate) return "Vui lòng chọn ngày bắt đầu";
-        if (Number(formData.awaitTimeMin) < 0) return "Thời gian chờ không được âm";
-        return null;
+    /** Update field & clear error */
+    const handleInputChange = (field: string, value: string | number) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+
+        if (validationErrors[field as keyof typeof validationErrors]) {
+            setValidationErrors((prev) => ({
+                ...prev,
+                [field]: undefined,
+            }));
+        }
     };
 
-    // function called by DialogContainer when user clicks "Lưu"
+    /** Submit logic */
     const handleSave = async () => {
         setError(null);
-        const v = validate();
-        if (v) {
-            setError(v);
-            return;
-        }
+
+        if (!validateForm()) return;
 
         setSubmitting(true);
         try {
             const payload: DialogPayload = {
                 name: formData.name.trim(),
-                awaitTime: Math.round(Number(formData.awaitTimeMin) * 60), // convert minutes -> seconds
+                awaitTime: Math.round(Number(formData.awaitTimeMin) * 60),
                 startDate: formData.startDate,
             };
-
             await onSubmit(payload);
-            // parent is responsible for closing the dialog on success
         } catch (err: any) {
             console.error("Submit error:", err);
             setError(err?.message || "Thao tác thất bại");
@@ -98,7 +127,6 @@ export default function CreateExamGroupDialog({
         }
     };
 
-    // combine external loading + internal submitting
     const effectiveLoading = Boolean(isLoading) || submitting;
 
     return (
@@ -119,35 +147,53 @@ export default function CreateExamGroupDialog({
                     </Box>
                 )}
 
+                {/* Tên bài thi */}
                 <TextField
                     fullWidth
+                    required
                     margin="normal"
-                    label="Tên"
+                    label="Tên bài thi"
                     name="name"
                     value={formData.name}
-                    onChange={handleChange}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    error={!!validationErrors.name}
+                    helperText={validationErrors.name}
+                    disabled={effectiveLoading}
+                    size="small"
                 />
 
+                {/* Thời gian chờ */}
                 <TextField
                     fullWidth
+                    required
                     margin="normal"
                     label="Thời gian chờ (phút)"
                     name="awaitTimeMin"
-                    value={formData.awaitTimeMin}
-                    onChange={handleChange}
                     type="number"
-                    inputProps={{ min: 0 }}
+                    inputProps={{ min: 1 }}
+                    value={formData.awaitTimeMin}
+                    onChange={(e) => handleInputChange("awaitTimeMin", e.target.value)}
+                    error={!!validationErrors.awaitTimeMin}
+                    helperText={validationErrors.awaitTimeMin}
+                    disabled={effectiveLoading}
+                    size="small"
                 />
 
+                {/* Ngày bắt đầu */}
                 <TextField
                     fullWidth
+                    required
                     margin="normal"
                     label="Ngày bắt đầu"
                     name="startDate"
                     type="date"
                     value={formData.startDate}
-                    onChange={handleChange}
+                    onChange={(e) => handleInputChange("startDate", e.target.value)}
                     InputLabelProps={{ shrink: true }}
+                    error={!!validationErrors.startDate}
+                    helperText={validationErrors.startDate}
+                    disabled={effectiveLoading}
+                    size="small"
                 />
             </Box>
         </DialogContainer>

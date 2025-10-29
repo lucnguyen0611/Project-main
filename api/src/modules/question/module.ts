@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {Module} from '@nestjs/common';
 import {DatabaseModule} from "@/database/module";
 import {DataSource} from "typeorm";
 import {QuestionEntity} from "@/modules/question/entity";
@@ -17,4 +17,5 @@ import {QuestionService} from "@/modules/question/service";
     }],
     exports: [QuestionServiceToken]
 })
-export class QuestionModule {}
+export class QuestionModule {
+}

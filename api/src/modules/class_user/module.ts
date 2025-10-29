@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {Module} from '@nestjs/common';
 import {DataSource} from "typeorm";
 import {DatabaseModule} from "@/database/module";
 import {DATA_SOURCE, ClassUserEntityRepository, ClassUserServiceToken} from "@/shares";
@@ -17,4 +17,5 @@ import {ClassUserService} from "@/modules/class_user/service";
     }],
     exports: [ClassUserServiceToken]
 })
-export class ClassUserModule {}
+export class ClassUserModule {
+}

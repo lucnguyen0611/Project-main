@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Container, Typography, Card, Alert } from "@mui/material";
+import { Box, Container, Typography, Card } from "@mui/material";
 import { Header } from "@/components/common/Header";
 import { useNavigate } from "react-router-dom";
 import { classApi } from "@/api/class.api";
@@ -12,12 +12,10 @@ const CreateClassPage: React.FC = () => {
     const { user } = useAuth();
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (data: { name: string; code: string }) => {
         try {
             setLoading(true);
-            setError(null);
 
             const classData = {
                 ...data,
@@ -32,7 +30,6 @@ const CreateClassPage: React.FC = () => {
         } catch (err: any) {
             const errorMessage =
                 err.response?.data?.message || "Không thể tạo lớp học";
-            setError(errorMessage);
             showToast(errorMessage, "error");
         } finally {
             setLoading(false);
@@ -82,18 +79,6 @@ const CreateClassPage: React.FC = () => {
                             bgcolor: "white",
                         }}
                     >
-                        {/* Error Alert */}
-                        {error && (
-                            <Alert
-                                severity="error"
-                                sx={{ mb: 3 }}
-                                onClose={() => setError(null)}
-                            >
-                                {error}
-                            </Alert>
-                        )}
-
-                        {/* Form */}
                         <CreateClassForm
                             onSubmit={handleSubmit}
                             onCancel={handleCancel}

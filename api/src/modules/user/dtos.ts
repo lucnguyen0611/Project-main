@@ -2,7 +2,7 @@ import {ChangePasswordReqI} from "@/shares";
 import {ApiProperty} from "@nestjs/swagger";
 import {IsNotEmpty, IsString, Matches, MinLength} from "class-validator";
 
-export class ChangePasswordReq implements ChangePasswordReqI{
+export class ChangePasswordReq implements ChangePasswordReqI {
     @ApiProperty({
         description: 'The old password of the user',
         example: 'OldPassword',
@@ -17,9 +17,9 @@ export class ChangePasswordReq implements ChangePasswordReqI{
     })
     @IsString()
     @IsNotEmpty()
-    // @MinLength(8, { message: 'New password must be at least 8 characters long.' })
-    // @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    //     message: 'New password must contain at least one uppercase letter, one lowercase letter, one number and one special character.',
-    // })
+        // @MinLength(8, { message: 'New password must be at least 8 characters long.' })
+        // @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        //     message: 'New password must contain at least one uppercase letter, one lowercase letter, one number and one special character.',
+        // })
     new_password: string;
 }

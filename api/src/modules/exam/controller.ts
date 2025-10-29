@@ -31,10 +31,11 @@ import {Roles} from "@/modules/auth/roles.decorator";
 export class ExamController {
     constructor(
         @Inject(ExamServiceToken)
-         private readonly examService: ExamServiceI,
+        private readonly examService: ExamServiceI,
         @Inject(FileServiceToken)
         private readonly fileService: FileServiceI,
-    ) {}
+    ) {
+    }
 
     @Get()
     @UseInterceptors(ExamInterceptor)
@@ -44,8 +45,8 @@ export class ExamController {
         type: Number,
         description: 'Optional exam group ID to filter exams'
     })
-    findAll(@Query('exam_group_id', OptionalParseIntPipe) examGroupId?: number){
-        if(examGroupId && examGroupId > 0){
+    findAll(@Query('exam_group_id', OptionalParseIntPipe) examGroupId?: number) {
+        if (examGroupId && examGroupId > 0) {
             return this.examService.find({exam_group_id: examGroupId})
         }
         return this.examService.find();
@@ -53,7 +54,7 @@ export class ExamController {
 
     @Get(':id')
     @UseInterceptors(ExamInterceptor)
-    findOne(@Param('id', ParseIntPipe) id: number){
+    findOne(@Param('id', ParseIntPipe) id: number) {
         return this.examService.findOne(id);
     }
 
@@ -75,20 +76,20 @@ export class ExamController {
                 validators: [
                     new MaxFileSizeValidator({maxSize: 1024 * 1024 * 10}), // 10MB
                     new MultiFileType({
-                        fileTypes: ['image/png', 'image/jpeg', 'image/gif','application/pdf'],
+                        fileTypes: ['image/png', 'image/jpeg', 'image/gif', 'application/pdf'],
                     }),
                 ],
                 fileIsRequired: true,
             }),
         )
         file: Express.Multer.File,
-    ){
+    ) {
         // upload and create a file record
         const examFile = await this.fileService.uploadAndCreateFile(file);
 
         const createData = {...data};
-        if(examFile.id){
-            createData['file_id'] = examFile.id ;
+        if (examFile.id) {
+            createData['file_id'] = examFile.id;
         }
 
         return this.examService.create(createData);
@@ -113,15 +114,15 @@ export class ExamController {
                 validators: [
                     new MaxFileSizeValidator({maxSize: 1024 * 1024 * 10}), // 10MB
                     new MultiFileType({
-                        fileTypes: ['image/png', 'image/jpeg', 'image/gif','application/pdf'],
+                        fileTypes: ['image/png', 'image/jpeg', 'image/gif', 'application/pdf'],
                     }),
                 ],
                 fileIsRequired: false,
             }),
         )
         file?: Express.Multer.File,
-        ){
-        let fileId: number| undefined = undefined;
+    ) {
+        let fileId: number | undefined = undefined;
         if (file) {
             // upload and create a file record
             const examFile = await this.fileService.uploadAndCreateFile(file);
@@ -129,7 +130,7 @@ export class ExamController {
         }
 
         const updateData = {...data};
-        if(fileId){
+        if (fileId) {
             updateData['file_id'] = fileId;
         }
         return this.examService.updateOne(id, updateData);
@@ -138,7 +139,7 @@ export class ExamController {
     @Delete(':id')
     @Roles(Role.TEACHER, Role.ADMIN)
     @UseGuards(RolesGuard)
-    softDelete(@Param('id', ParseIntPipe) id: number){
+    softDelete(@Param('id', ParseIntPipe) id: number) {
         return this.examService.softDelete(id);
     }
 }

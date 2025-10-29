@@ -74,7 +74,7 @@ function ExamsGrid({exams, classId, examGroupId, awaitingTime}: { exams: ExamWit
                             <ExamBox exam={exam} awaitingTime={awaitingTime}/>
                         </Link>
                     ) : (
-                        <Box sx={{backgroundColor: '#e0ecf6', cursor: 'not-allowed'}}>
+                        <Box sx={{backgroundColor: '#edf2f7', cursor: 'not-allowed'}}>
                             <ExamBox exam={exam} awaitingTime={awaitingTime}/>
                         </Box>
                     )}

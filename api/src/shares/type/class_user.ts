@@ -9,8 +9,10 @@ export interface ClassUserI extends ClassUserBaseI {
 }
 
 // create or update
-export interface ClassUserReqI extends ClassUserBaseI {}
+export interface ClassUserReqI extends ClassUserBaseI {
+}
 
 // response
-export interface ClassUserResI extends ClassUserI {}
+export interface ClassUserResI extends ClassUserI {
+}
 

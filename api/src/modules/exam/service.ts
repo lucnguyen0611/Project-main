@@ -29,36 +29,6 @@ export class ExamService extends BaseService<ExamEntity, ExamReqI, ExamResI>
         super(repository, cls);
     }
 
-    protected handleSelect(): SelectQueryBuilder<ExamEntity> {
-        return this.repository
-            .createQueryBuilder(this.getTableName())
-            .select([
-                'exam.id as id',
-                'exam.exam_group_id::int as exam_group_id',
-                'exam.name as name',
-                'exam.code as code',
-                'exam.total_time as total_time',
-                'exam.number_of_question as number_of_question',
-                'exam.description as description',
-                `coalesce(
-                    json_agg(
-                        json_build_object(
-                            'id', question.id,
-                            'index', question.index,
-                            'type', question.type,
-                            'correct_answer', question.correct_answer
-                        )
-                    ) filter (where question.active = true),
-                '[]') as questions   
-                `,
-                `json_build_object('id', exam_file.id, 'url', exam_file.viewable_url, 'file_type', exam_file.file_type)
-                as file`
-            ])
-            .leftJoin(QuestionEntity, 'question', 'question.exam_id = exam.id and question.active = true')
-            .leftJoin('exam.file','exam_file')
-            .groupBy('exam.id, exam.exam_group_id, exam.name, exam.code, exam.total_time, exam.number_of_question, exam.description, exam_file.id');
-    }
-
     @Transactional()
     async create(examReq: ExamReqI): Promise<ExamResI> {
         const creatorId: number | null = this.getAuthenticatedUserId();
@@ -150,6 +120,36 @@ export class ExamService extends BaseService<ExamEntity, ExamReqI, ExamResI>
         } catch (e) {
             throw new InternalServerErrorException(e.message);
         }
+    }
+
+    protected handleSelect(): SelectQueryBuilder<ExamEntity> {
+        return this.repository
+            .createQueryBuilder(this.getTableName())
+            .select([
+                'exam.id as id',
+                'exam.exam_group_id::int as exam_group_id',
+                'exam.name as name',
+                'exam.code as code',
+                'exam.total_time as total_time',
+                'exam.number_of_question as number_of_question',
+                'exam.description as description',
+                `coalesce(
+                    json_agg(
+                        json_build_object(
+                            'id', question.id,
+                            'index', question.index,
+                            'type', question.type,
+                            'correct_answer', question.correct_answer
+                        )
+                    ) filter (where question.active = true),
+                '[]') as questions   
+                `,
+                `json_build_object('id', exam_file.id, 'url', exam_file.viewable_url, 'file_type', exam_file.file_type)
+                as file`
+            ])
+            .leftJoin(QuestionEntity, 'question', 'question.exam_id = exam.id and question.active = true')
+            .leftJoin('exam.file', 'exam_file')
+            .groupBy('exam.id, exam.exam_group_id, exam.name, exam.code, exam.total_time, exam.number_of_question, exam.description, exam_file.id');
     }
 
 }

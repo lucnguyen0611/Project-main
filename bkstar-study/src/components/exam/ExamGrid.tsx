@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Typography, Button } from "@mui/material";
+import {Grid, Typography, Button, Alert} from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { ExamItem } from "@/types";
 import ExamCard from "./ExamCard";
@@ -10,9 +10,10 @@ interface ExamGridProps {
     groupId?: number;
     onReload?: () => void;
     isTeacher?: boolean;
+    onDelete?: (examId: number) => Promise<any> | void;
 }
 
-export const ExamGrid: React.FC<ExamGridProps> = ({ exams, isTeacher }) => {
+export const ExamGrid: React.FC<ExamGridProps> = ({ exams, isTeacher, onDelete }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -41,14 +42,15 @@ export const ExamGrid: React.FC<ExamGridProps> = ({ exams, isTeacher }) => {
             <Grid container spacing={3}>
                 {exams.length === 0 ? (
                     <Grid size={{ xs: 12 }}>
-                        <Typography>Chưa có đề bài nào trong nhóm này.</Typography>
+                        <Alert severity="info">Chưa có đề bài nào trong nhóm này.</Alert>
                     </Grid>
                 ) : (
                     exams.map((e) => (
-                        <Grid key={e.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                        <Grid key={e.id} size={{ xs: 12, sm: 6, md: 6, lg: 4 }}>
                             <ExamCard
                                 exam={e}
                                 isTeacher={isTeacher}
+                                onDelete={onDelete}
                             />
                         </Grid>
                     ))

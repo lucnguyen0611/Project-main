@@ -13,6 +13,8 @@ export interface FileI extends FileBaseI {
 }
 
 // create or update
-export interface FileReqI extends FileBaseI {}
+export interface FileReqI extends FileBaseI {
+}
 
-export interface FileResI extends FileI {}
+export interface FileResI extends FileI {
+}

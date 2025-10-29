@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {Entity, Column, ManyToOne, JoinColumn, OneToMany} from 'typeorm';
 import {BaseEntity} from "@/modules/base/entity";
 import {UserEntity} from "@/modules/user/entity";
 import {ExamEntity} from "@/modules/exam/entity";
@@ -10,14 +10,14 @@ export class ExamResultEntity extends BaseEntity {
     user_id: number;
 
     @ManyToOne(() => UserEntity)
-    @JoinColumn({ name: 'user_id' })
+    @JoinColumn({name: 'user_id'})
     user: UserEntity;
 
     @Column()
     exam_id: number;
 
     @ManyToOne(() => ExamEntity)
-    @JoinColumn({ name: 'exam_id' })
+    @JoinColumn({name: 'exam_id'})
     exam: ExamEntity;
 
     @Column()

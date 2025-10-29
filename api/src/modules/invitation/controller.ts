@@ -1,5 +1,5 @@
-import { Controller } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {Controller} from '@nestjs/common';
+import {ApiTags, ApiBearerAuth} from '@nestjs/swagger';
 import {InvitationDto} from "@/modules/invitation/dtos";
 import {InvitationServiceToken} from "@/shares";
 import type {InvitationServiceI} from "@/shares";
@@ -12,12 +12,13 @@ import {AuthGuard} from "@/modules/auth/guard";
 @UseGuards(AuthGuard)
 export class InvitationController {
     constructor(
-       @Inject(InvitationServiceToken)
-       private readonly invitationService: InvitationServiceI
-    ) {}
+        @Inject(InvitationServiceToken)
+        private readonly invitationService: InvitationServiceI
+    ) {
+    }
 
     @Post()
-    invite(@Body() invitation: InvitationDto){
+    invite(@Body() invitation: InvitationDto) {
         return this.invitationService.invite(invitation);
     }
 }

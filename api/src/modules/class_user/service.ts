@@ -8,8 +8,7 @@ import {ClsService} from "nestjs-cls";
 
 @Injectable()
 export class ClassUserService extends BaseService<ClassUserEntity, ClassUserReqI, ClassUserI>
-implements ClassUserServiceI
-{
+    implements ClassUserServiceI {
     constructor(
         @Inject(ClassUserEntityRepository)
         protected repository: Repository<ClassUserEntity>,

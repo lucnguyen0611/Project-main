@@ -1,18 +1,41 @@
 import {
-  UserReqI, UserWithPassI, UserResI,
-  LoginReqI, LoginResI,
-  StudentResI, StudentReqI,
+  UserReqI,
+  UserWithPassI,
+  UserResI,
+  LoginReqI,
+  LoginResI,
+  StudentResI,
+  StudentReqI,
   RegisterReqI,
-  TeacherReqI, TeacherResI,
-  FileI, FileReqI,
-  ClassI, ClassReqI,
-  ClassUserI, ClassUserReqI, InvitationI,
-  ExamGroupI, ExamGroupReqI,
-  QuestionReqI, QuestionResI,
-  ExamReqI, ExamResI,
-  AnswerReqI, AnswerResI, ExamResultReqI, ExamResultResI, ChangePasswordReqI, ClassResI,
+  TeacherReqI,
+  TeacherResI,
+  FileI,
+  FileReqI,
+  ClassI,
+  ClassReqI,
+  ClassUserI,
+  ClassUserReqI,
+  InvitationI,
+  ExamGroupI,
+  ExamGroupReqI,
+  QuestionReqI,
+  QuestionResI,
+  ExamReqI,
+  ExamResI,
+  AnswerReqI,
+  AnswerResI,
+  ExamResultReqI,
+  ExamResultResI,
+  ChangePasswordReqI,
+  ClassResI,
+  AdminResI,
+  AdminReqI,
 } from '@/shares';
-import {ForgotPasswordReq, RefreshTokenReq, ResetPasswordReq} from '@/modules/auth/dtos';
+import {
+  ForgotPasswordReq,
+  RefreshTokenReq,
+  ResetPasswordReq,
+} from '@/modules/auth/dtos';
 
 export interface BaseServiceI<RequestI, ResponseI> {
   find: (params?: any) => Promise<ResponseI[]>;
@@ -30,6 +53,7 @@ export interface UserServiceI extends BaseServiceI<UserReqI, UserResI> {
 
 export type StudentServiceI = BaseServiceI<StudentReqI, StudentResI>;
 export type TeacherServiceI = BaseServiceI<TeacherReqI, TeacherResI>;
+export type AdminServiceI = BaseServiceI<AdminReqI, AdminResI>;
 
 export interface AuthServiceI {
   login: (data: LoginReqI) => Promise<LoginResI>;
@@ -46,22 +70,28 @@ export interface FileServiceI extends BaseServiceI<FileReqI, FileI> {
 export interface ClassServiceI extends BaseServiceI<ClassReqI, ClassResI> {
   createAndJoinClass: (data: ClassReqI) => Promise<ClassI>;
 }
-export interface ClassUserServiceI extends BaseServiceI<ClassUserReqI, ClassUserI> {}
+
+export type ClassUserServiceI = BaseServiceI<ClassUserReqI, ClassUserI>;
+
 export interface InvitationServiceI {
-  invite: (invitation: InvitationI) => Promise<{msg: string}>;
+  invite: (invitation: InvitationI) => Promise<{ msg: string }>;
 }
 
-export interface ExamGroupServiceI extends BaseServiceI<ExamGroupReqI, ExamGroupI> {}
-export interface QuestionServiceI extends BaseServiceI<QuestionReqI, QuestionResI>{
+export type ExamGroupServiceI = BaseServiceI<ExamGroupReqI, ExamGroupI>;
+
+export interface QuestionServiceI
+  extends BaseServiceI<QuestionReqI, QuestionResI> {
   createMany: (data: QuestionReqI[]) => Promise<QuestionResI[]>;
   updateMany: (data: QuestionReqI[]) => Promise<QuestionResI[]>;
 }
-export interface ExamServiceI extends BaseServiceI<ExamReqI, ExamResI> {}
 
-export interface AnswerServiceI extends BaseServiceI<AnswerReqI, AnswerResI>{
+export type ExamServiceI = BaseServiceI<ExamReqI, ExamResI>;
+
+export interface AnswerServiceI extends BaseServiceI<AnswerReqI, AnswerResI> {
   updateMany: (data: AnswerReqI[]) => Promise<AnswerResI[]>;
 }
 
-export interface ExamResultServiceI extends BaseServiceI<ExamResultReqI, ExamResultResI> {
+export interface ExamResultServiceI
+  extends BaseServiceI<ExamResultReqI, ExamResultResI> {
   findAndFilter: (userId: number, examGroupId: number) => Promise<any[]>;
 }

@@ -18,14 +18,14 @@ import type {
     ApiExamResult
 } from "@/types";
 
-export interface Answer {
-    id: number;
-    question: number;
-    index: number;
-    answer: string;
-    is_correct: boolean[] | null; // với long-response = null
-    type: "single-choice" | "multiple-choice" | "long-response";
-}
+// export interface Answer {
+//     id: number;
+//     question: number;
+//     index: number;
+//     answer: string;
+//     is_correct: boolean[] | null; // với long-response = null
+//     type: "single-choice" | "multiple-choice" | "long-response";
+// }
 
 const MarkingPage: React.FC = () => {
     const { studentId, examGroupId } = useParams<{

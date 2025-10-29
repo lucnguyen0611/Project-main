@@ -23,41 +23,6 @@ export class ClassService extends BaseService<ClassEntity, ClassReqI, ClassResI>
         super(repository, cls);
     }
 
-    protected handleSelect() {
-        return this.repository
-            .createQueryBuilder(this.getTableName())
-            .select([
-                'class.id::int as id',
-                'class.name as name',
-                'class.code as code',
-                `coalesce(
-                    json_agg(
-                        json_build_object(
-                            'id', "user".id,
-                            'name', "user".name,
-                            'role', "user".role,
-                            'email', "user".email
-                        )
-                    ) filter (where "user".role = 'teacher'),
-                 '[]') as teachers, 
-                    
-                 coalesce(
-                    json_agg(
-                        json_build_object(
-                            'id', "user".id,
-                            'name', "user".name,
-                            'role', "user".role,
-                            'email', "user".email
-                        )
-                    ) filter (where "user".role = 'student'),
-                 '[]') as students
-                `
-            ])
-            .innerJoin(ClassUserEntity, 'class_user', 'class_user.class_id = class.id and class_user.active')
-            .innerJoin(UserEntity, 'user', '"user".id = class_user.user_id and "user".active')
-            .groupBy('class.id, class.name, class.code');
-    }
-
     async find(condition = {}) {
         const curUserId: number | null = this.getAuthenticatedUserId();
         const userRole: Role | null = this.getAuthenticatedRole();
@@ -78,9 +43,9 @@ export class ClassService extends BaseService<ClassEntity, ClassReqI, ClassResI>
         return await query.getRawMany();
     }
 
-    async findOne(id: number){
+    async findOne(id: number) {
         const response = await this.find({id});
-        if(!response || !Array.isArray(response) || response.length === 0)
+        if (!response || !Array.isArray(response) || response.length === 0)
             throw new HttpException('Class not found', HttpStatus.NOT_FOUND);
         return response[0];
     }
@@ -114,7 +79,7 @@ export class ClassService extends BaseService<ClassEntity, ClassReqI, ClassResI>
         return await super.updateOne(id, classReq);
     }
 
-    async softDelete(id: number){
+    async softDelete(id: number) {
         const userId: number | null = this.getAuthenticatedUserId();
         const userRole: Role | null = this.getAuthenticatedRole();
         if (!userId || !userRole)
@@ -124,6 +89,41 @@ export class ClassService extends BaseService<ClassEntity, ClassReqI, ClassResI>
         const classToDelete = await this.findOne(id);
 
         return await super.softDelete(id);
+    }
+
+    protected handleSelect() {
+        return this.repository
+            .createQueryBuilder(this.getTableName())
+            .select([
+                'class.id::int as id',
+                'class.name as name',
+                'class.code as code',
+                `coalesce(
+                    json_agg(
+                        json_build_object(
+                            'id', "user".id,
+                            'name', "user".name,
+                            'role', "user".role,
+                            'email', "user".email
+                        )
+                    ) filter (where "user".role = 'teacher'),
+                 '[]') as teachers, 
+                    
+                 coalesce(
+                    json_agg(
+                        json_build_object(
+                            'id', "user".id,
+                            'name', "user".name,
+                            'role', "user".role,
+                            'email', "user".email
+                        )
+                    ) filter (where "user".role = 'student'),
+                 '[]') as students
+                `
+            ])
+            .innerJoin(ClassUserEntity, 'class_user', 'class_user.class_id = class.id and class_user.active')
+            .innerJoin(UserEntity, 'user', '"user".id = class_user.user_id and "user".active')
+            .groupBy('class.id, class.name, class.code');
     }
 
 }

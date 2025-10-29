@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {ApiProperty} from '@nestjs/swagger';
 import {IsString, IsNotEmpty, IsNumber, IsOptional, IsEnum} from 'class-validator';
 import {QuestionReqI, QuestionType} from '@/shares';
 

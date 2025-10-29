@@ -1,4 +1,4 @@
-import { BaseEntity } from '@/modules/base/entity';
+import {BaseEntity} from '@/modules/base/entity';
 import {Column, Entity, JoinColumn, ManyToOne} from 'typeorm';
 import {ExamEntity} from "@/modules/exam/entity";
 import {QuestionType} from "@/shares";
@@ -21,7 +21,7 @@ export class QuestionEntity extends BaseEntity {
     @Column()
     correct_answer: string;
 
-    @ManyToOne(()=> ExamEntity)
-    @JoinColumn({ name: 'exam_id' })
+    @ManyToOne(() => ExamEntity)
+    @JoinColumn({name: 'exam_id'})
     exam: ExamEntity;
 }

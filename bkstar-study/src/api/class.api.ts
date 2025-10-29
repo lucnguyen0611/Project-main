@@ -53,7 +53,7 @@ export const classApi = {
 
     // Delete class
     deleteClass: async (id: number): Promise<void> => {
-        await apiClient.delete(`${API_ENDPOINTS.CLASSES}${id}/`);
+        await apiClient.delete(`${API_ENDPOINTS.CLASS_DELETE}${id}/`);
     },
 
     invite: async (

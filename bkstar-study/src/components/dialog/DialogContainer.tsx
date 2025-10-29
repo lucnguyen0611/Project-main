@@ -1,3 +1,4 @@
+// src/components/common/DialogContainer.tsx
 import React from "react";
 import {
     Dialog,
@@ -6,10 +7,10 @@ import {
     DialogActions,
     Button,
     Box,
-    DialogContentText,
     IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteConfirmDialog from "@/components/dialog/DeleteConfirmDilog.tsx";
 
 export interface DialogProp {
     isLoading: boolean;
@@ -111,28 +112,15 @@ export default function DialogContainer({
                 <DialogActions>{defaultActions}</DialogActions>
             </Dialog>
 
-            {/* Confirm delete dialog */}
-            <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-                <DialogTitle>Xác nhận xóa</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Bạn có chắc chắn muốn xóa mục này?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setConfirmOpen(false)} disabled={deleting}>
-                        HỦY
-                    </Button>
-                    <Button
-                        color="error"
-                        variant="contained"
-                        onClick={handleConfirmDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? "Đang xóa..." : "Xóa"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            {/* Reusable delete confirm */}
+            <DeleteConfirmDialog
+                open={confirmOpen}
+                loading={deleting}
+                title="Xác nhận xóa"
+                description="Bạn có chắc chắn muốn xóa mục này?"
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+            />
         </>
     );
 }

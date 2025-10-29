@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { DatabaseModule } from "@/database/module";
+import {Module} from '@nestjs/common';
+import {DatabaseModule} from "@/database/module";
 import {DATA_SOURCE, ClassEntityRepository, ClassServiceToken} from "@/shares";
 import {DataSource} from "typeorm";
 import {ClassEntity} from "@/modules/class/entity";
@@ -14,13 +14,14 @@ import {ClassSubscriber} from "@/modules/class/subscriber";
     controllers: [ClassController],
     providers: [{
         provide: ClassEntityRepository,
-        useFactory: (dataSource: DataSource)=> dataSource.getRepository(ClassEntity),
+        useFactory: (dataSource: DataSource) => dataSource.getRepository(ClassEntity),
         inject: [DATA_SOURCE]
-    },{
+    }, {
         provide: ClassServiceToken,
         useClass: ClassService
     }, ClassSubscriber
     ],
-    exports: [ClassServiceToken]
+    exports: [ClassServiceToken, ClassEntityRepository]
 })
-export class ClassModule {}
+export class ClassModule {
+}

@@ -1,5 +1,5 @@
 import {Controller, Get, Param, Res, ParseIntPipe, Inject, UseGuards} from '@nestjs/common';
-import type { Response } from 'express';
+import type {Response} from 'express';
 import {type FileServiceI, FileServiceToken} from "@/shares";
 import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {AuthGuard} from "@/modules/auth/guard";
@@ -10,7 +10,8 @@ export class PDFViewerController {
     constructor(
         @Inject(FileServiceToken)
         private readonly fileService: FileServiceI
-    ) {}
+    ) {
+    }
 
     @Get(':fileId')
     async viewPDF(@Param('fileId', ParseIntPipe) fileId: number, @Res() res: Response) {

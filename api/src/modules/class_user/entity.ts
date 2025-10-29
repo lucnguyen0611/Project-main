@@ -16,10 +16,10 @@ export class ClassUserEntity extends BaseEntity {
     user_id: number;
 
     @ManyToOne(() => ClassEntity)
-    @JoinColumn({ name: 'class_id' })
+    @JoinColumn({name: 'class_id'})
     class: ClassEntity;
 
     @ManyToOne(() => UserEntity)
-    @JoinColumn({ name: 'user_id' })
+    @JoinColumn({name: 'user_id'})
     user: UserEntity;
 }

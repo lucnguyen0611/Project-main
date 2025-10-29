@@ -30,7 +30,8 @@ export class StudentController {
         private readonly studentService: StudentServiceI,
         @Inject(FileServiceToken)
         private readonly fileService: FileServiceI,
-    ) {}
+    ) {
+    }
 
     @Get()
     findAll() {

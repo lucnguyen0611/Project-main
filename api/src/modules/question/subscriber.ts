@@ -4,10 +4,10 @@ import {QuestionEntity} from "@/modules/question/entity";
 import {AnswerEntity} from "@/modules/answer/entity";
 
 @EventSubscriber()
-export class QuestionSubscriber extends BaseCascadeSubscriber<QuestionEntity>{
+export class QuestionSubscriber extends BaseCascadeSubscriber<QuestionEntity> {
     constructor() {
         super([
-            { childEntity: AnswerEntity, foreignKey: "question_id"}
+            {childEntity: AnswerEntity, foreignKey: "question_id"}
         ]);
     }
 

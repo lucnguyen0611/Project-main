@@ -5,21 +5,16 @@ interface Student {
     id: number;
     name: string;
     email: string;
+    results: any;
 }
 
 interface Props {
+    totalExam: number;
     students: Student[];
     onViewDetail?: (studentId: number) => void;
 }
 
-export const ResultGroup: React.FC<Props> = ({ students, onViewDetail }) => {
-    if (!students.length) {
-        return (
-            <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
-                Không có học sinh nào đã nộp bài.
-            </Typography>
-        );
-    }
+export const ResultGroup: React.FC<Props> = ({ totalExam, students, onViewDetail }) => {
 
     return (
         <Box sx={{ mt: 3 }}>
@@ -35,9 +30,13 @@ export const ResultGroup: React.FC<Props> = ({ students, onViewDetail }) => {
                         sx={{ width: 280, borderColor: "#26c6da" }}
                     >
                         <CardContent>
-                            <Typography fontWeight={600}>{s.name}</Typography>
+                            <Typography fontWeight={600}>Họ Tên: {s.name}</Typography>
                             <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
-                                {s.email}
+                                Gmail: {s.email}
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                                Số đề đã hoàn thành:
+                                <span style={{ color: "#f0ad4e" }}> {s.results.length}/{totalExam}</span>
                             </Typography>
                             <Typography variant="body2" sx={{ mb: 1 }}>
                                 Trạng thái:{" "}

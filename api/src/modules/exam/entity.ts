@@ -1,4 +1,4 @@
-import { BaseEntity } from '@/modules/base/entity';
+import {BaseEntity} from '@/modules/base/entity';
 import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne} from 'typeorm';
 import {QuestionEntity} from "@/modules/question/entity";
 import {ExamGroupEntity} from "@/modules/exam_group/entity";
@@ -9,8 +9,8 @@ export class ExamEntity extends BaseEntity {
     @Column()
     exam_group_id: number;
 
-    @ManyToOne(()=> ExamGroupEntity)
-    @JoinColumn({ name: 'exam_group_id' })
+    @ManyToOne(() => ExamGroupEntity)
+    @JoinColumn({name: 'exam_group_id'})
     exam_group: ExamGroupEntity;
 
     @Column()
@@ -28,13 +28,13 @@ export class ExamEntity extends BaseEntity {
     @Column()
     description: string;
 
-    @OneToMany(()=> QuestionEntity, question => question.exam)
+    @OneToMany(() => QuestionEntity, question => question.exam)
     questions: QuestionEntity[];
 
     @Column()
     file_id: number;
 
-    @OneToOne(()=> FileEntity, file => file.exam)
-    @JoinColumn({ name: 'file_id' })
+    @OneToOne(() => FileEntity, file => file.exam)
+    @JoinColumn({name: 'file_id'})
     file: FileEntity;
 }

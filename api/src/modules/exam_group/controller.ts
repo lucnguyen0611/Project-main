@@ -16,7 +16,8 @@ export class ExamGroupController {
     constructor(
         @Inject(ExamGroupServiceToken)
         private readonly examGroupService: ExamGroupServiceI
-    ) {}
+    ) {
+    }
 
     @Get()
     @ApiQuery({
@@ -25,36 +26,36 @@ export class ExamGroupController {
         type: Number,
         description: 'Optional class ID to filter exam groups'
     })
-    findAll(@Query('class_id', OptionalParseIntPipe) classId?: number){
-        if(classId){
+    findAll(@Query('class_id', OptionalParseIntPipe) classId?: number) {
+        if (classId) {
             return this.examGroupService.find({class_id: classId})
         }
         return this.examGroupService.find();
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number){
+    findOne(@Param('id', ParseIntPipe) id: number) {
         return this.examGroupService.findOne(id);
     }
 
     @Post()
     @Roles(Role.TEACHER, Role.ADMIN)
     @UseGuards(RolesGuard)
-    create(@Body() data: ExamGroupReq){
+    create(@Body() data: ExamGroupReq) {
         return this.examGroupService.create(data);
     }
 
     @Put(':id')
     @Roles(Role.TEACHER, Role.ADMIN)
     @UseGuards(RolesGuard)
-    updateOne(@Param('id', ParseIntPipe) id: number, @Body() data: ExamGroupReq){
+    updateOne(@Param('id', ParseIntPipe) id: number, @Body() data: ExamGroupReq) {
         return this.examGroupService.updateOne(id, data);
     }
 
     @Delete(':id')
     @Roles(Role.TEACHER, Role.ADMIN)
     @UseGuards(RolesGuard)
-    softDelete(@Param('id', ParseIntPipe) id: number){
+    softDelete(@Param('id', ParseIntPipe) id: number) {
         return this.examGroupService.softDelete(id);
     }
 }

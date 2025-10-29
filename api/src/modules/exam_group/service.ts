@@ -7,8 +7,7 @@ import {ClsService} from "nestjs-cls";
 
 @Injectable()
 export class ExamGroupService extends BaseService<ExamGroupEntity, ExamGroupReqI, ExamGroupI>
-    implements ExamGroupServiceI
-{
+    implements ExamGroupServiceI {
     constructor(
         @Inject(ExamGroupEntityRepository)
         protected repository: Repository<ExamGroupEntity>,

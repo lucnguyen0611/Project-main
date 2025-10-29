@@ -40,7 +40,7 @@ export class CreateExamResultDto extends BaseExamResultDto implements ExamResult
         type: [CreateAnswerDTO],
         description: 'list of answers',
     })
-    @ValidateNested({ each: true })
+    @ValidateNested({each: true})
     questions: CreateAnswerDTO[];
 }
 
@@ -49,6 +49,6 @@ export class UpdateExamResultDto extends BaseExamResultDto implements ExamResult
         type: [UpdateAnswerDTO],
         description: 'list of answers',
     })
-    @ValidateNested({ each: true })
+    @ValidateNested({each: true})
     questions: UpdateAnswerDTO[];
 }

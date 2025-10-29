@@ -1,4 +1,4 @@
-import { QuestionReqI, QuestionResI } from '@/shares';
+import {QuestionReqI, QuestionResI} from '@/shares';
 
 interface ExamBaseI {
     exam_group_id: number;
@@ -15,7 +15,7 @@ export interface ExamI extends ExamBaseI {
     file_id: number;
 }
 
-export interface ExamReqI extends ExamBaseI{
+export interface ExamReqI extends ExamBaseI {
     questions: QuestionReqI[];
 }
 

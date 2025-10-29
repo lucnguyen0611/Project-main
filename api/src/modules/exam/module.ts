@@ -21,4 +21,5 @@ import {FileModule} from "@/modules/file/module";
         useClass: ExamService
     }],
 })
-export class ExamModule {}
+export class ExamModule {
+}

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import {ApiProperty} from '@nestjs/swagger';
 import {IsString, IsNotEmpty, IsNumber, ValidateNested} from 'class-validator';
 import {ExamReqI} from '@/shares';
 import {CreateQuestionDTO, UpdateQuestionDTO} from "@/modules/question/dtos";
@@ -57,8 +57,8 @@ export class CreateExamDto extends BaseExamDto implements ExamReqI {
         type: [CreateQuestionDTO],
         description: 'list of questions',
     })
-    @ValidateNested({ each: true })
-    @Transform(({ value }) => {
+    @ValidateNested({each: true})
+    @Transform(({value}) => {
         let parsedValue: any[];
         if (typeof value === 'string') {
             try {
@@ -92,8 +92,8 @@ export class UpdateExamDto extends BaseExamDto implements ExamReqI {
         type: [UpdateQuestionDTO],
         description: 'list of questions',
     })
-    @ValidateNested({ each: true })
-    @Transform(({ value }) => {
+    @ValidateNested({each: true})
+    @Transform(({value}) => {
         let parsedValue: any[];
         if (typeof value === 'string') {
             try {

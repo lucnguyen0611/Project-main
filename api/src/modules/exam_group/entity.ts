@@ -1,4 +1,4 @@
-import { BaseEntity } from '@/modules/base/entity';
+import {BaseEntity} from '@/modules/base/entity';
 import {Column, Entity, JoinColumn, ManyToOne} from 'typeorm';
 import {ClassEntity} from "@/modules/class/entity";
 
@@ -25,6 +25,6 @@ export class ExamGroupEntity extends BaseEntity {
     is_save_local: boolean;
 
     @ManyToOne(() => ClassEntity)
-    @JoinColumn({ name: 'class_id' })
+    @JoinColumn({name: 'class_id'})
     class: ClassEntity;
 }

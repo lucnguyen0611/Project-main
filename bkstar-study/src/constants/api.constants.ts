@@ -13,7 +13,7 @@ export const API_ENDPOINTS = {
   CLASSES: "/classes/",
   CLASS_DETAIL: "/classes/:id/",
   CLASS_UPDATE: "/classes/:id/",
-  CLASS_DELETE: "/classes/:id/",
+  CLASS_DELETE: "/classes/",
 
   // Exam Group endpoints
   EXAMS_GROUP: "/exam_groups/:classesId/",
@@ -27,7 +27,7 @@ export const API_ENDPOINTS = {
   EXAM_DETAIL: "/exams/:id/",
   EXAM_CREATE: "/exams/",
   EXAM_UPDATE: "/exams/:id",
-  EXAM_DELETE: "/exams/:id/",
+  EXAM_DELETE: "/exams/",
 
   // Exam Result endpoints
   EXAM_RESULT_CREATE: "/exam_results/",

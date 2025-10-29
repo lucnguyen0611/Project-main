@@ -9,7 +9,7 @@ import {Transactional} from "typeorm-transactional";
 
 @Injectable()
 export class QuestionService extends BaseService<QuestionEntity, QuestionReqI, QuestionResI>
-implements QuestionServiceI{
+    implements QuestionServiceI {
     constructor(
         @Inject(QuestionEntityRepository)
         protected repository: Repository<QuestionEntity>,
@@ -19,14 +19,14 @@ implements QuestionServiceI{
     }
 
     @Transactional()
-    async createMany(questions: QuestionReqI[]){
+    async createMany(questions: QuestionReqI[]) {
         const userId: number | null = this.getAuthenticatedUserId();
 
         if (!questions || questions.length === 0) {
             return [];
         }
 
-        const questionsWithUserId = questions.map((question)=> ({
+        const questionsWithUserId = questions.map((question) => ({
             ...question,
             created_by: userId,
         }))
@@ -38,7 +38,7 @@ implements QuestionServiceI{
             .returning(this.getPublicColumns());
 
         const response: InsertResult = await query.execute();
-        if(!response || !Array.isArray(response.raw) || response.raw.length === 0){
+        if (!response || !Array.isArray(response.raw) || response.raw.length === 0) {
             throw new InternalServerErrorException('Failed to create new questions');
         }
 
@@ -52,12 +52,12 @@ implements QuestionServiceI{
     }
 
     @Transactional()
-    async updateMany(questions: QuestionReqI[]){
+    async updateMany(questions: QuestionReqI[]) {
         const userId: number | null = this.getAuthenticatedUserId();
 
-        if(!questions || questions.length === 0) return [];
+        if (!questions || questions.length === 0) return [];
 
-        const questionsData: string = questions.map((q)=>
+        const questionsData: string = questions.map((q) =>
             `(${q.id},${q.index},'${q.type}'::question_type_enum,'${q.correct_answer}',${q.exam_id},${userId})`
         ).join(',');
 
@@ -77,7 +77,7 @@ implements QuestionServiceI{
                 RETURNING q.id, q.index, q.type, q.correct_answer;
             `
         const result = await this.repository.query(query);
-        if(!result || result.length === 0) throw new InternalServerErrorException('Failed to update questions');
+        if (!result || result.length === 0) throw new InternalServerErrorException('Failed to update questions');
         return result[0] as QuestionResI[];
     }
 

@@ -1,4 +1,4 @@
-import { ClassReqI } from '@/shares/type/class';
+import {ClassReqI} from '@/shares/type/class';
 import {ApiProperty} from "@nestjs/swagger";
 import {IsNotEmpty, IsString, MinLength} from "class-validator";
 

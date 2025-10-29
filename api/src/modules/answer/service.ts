@@ -9,15 +9,14 @@ import {Transactional} from "typeorm-transactional";
 
 @Injectable()
 export class AnswerService extends BaseService<AnswerEntity, AnswerReqI, AnswerResI>
-implements AnswerServiceI
-{
+    implements AnswerServiceI {
     constructor(
         @Inject(AnswerEntityRepository)
         protected repository: Repository<AnswerEntity>,
         protected cls: ClsService,
         @Inject(QuestionServiceToken)
         private readonly questionService: QuestionServiceI,
-    ){
+    ) {
         super(repository, cls);
     }
 
@@ -31,9 +30,9 @@ implements AnswerServiceI
         // if the question's type is long-response, initially assign is_correct as null to remark later
         // for single-choice and multiple-choice questions: empty answers would be marked as false,
         // otherwise compare the answer to correct_answer to determine the isCorrect array
-        if(questionType === QuestionType.LONG_RESPONSE) {
+        if (questionType === QuestionType.LONG_RESPONSE) {
             isCorrect = null;
-        } else if (answer === ''){
+        } else if (answer === '') {
             isCorrect = [false];
         } else {
             const arrayOfCorrectAnswers: string[] = correct_answer.split(',');
@@ -48,12 +47,12 @@ implements AnswerServiceI
     @Transactional()
     async updateMany(answers: AnswerReqI[]): Promise<AnswerResI[]> {
         const userId: number | null = this.getAuthenticatedUserId();
-        if(!answers || answers.length === 0) return [];
+        if (!answers || answers.length === 0) return [];
 
         const escapeLiteral = (str: string) => str.replace(/'/g, "''");
 
         const answersData: string = answers.map((a: AnswerReqI) => {
-            const { id, question_id, answer, is_correct } = a;
+            const {id, question_id, answer, is_correct} = a;
 
             const pgArray = is_correct
                 ? `'{${
@@ -79,7 +78,7 @@ implements AnswerServiceI
                 RETURNING a.id, a.question_id, a.answer, a.is_correct;
             `
         const result = await this.repository.query(query);
-        if(!result || result.length === 0) throw new InternalServerErrorException('Failed to update results');
+        if (!result || result.length === 0) throw new InternalServerErrorException('Failed to update results');
         return result[0] as AnswerResI[];
     }
 }

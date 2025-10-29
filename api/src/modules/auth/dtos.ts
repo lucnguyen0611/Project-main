@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { LoginReqI, RegisterReqI, Role } from '@/shares';
-import {IsString, IsNotEmpty, IsEnum, IsOptional, IsNumber} from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsEmail } from 'class-validator';
 
 export class LoginReq implements LoginReqI {
   @ApiProperty({
@@ -70,6 +70,7 @@ export class ForgotPasswordReq {
   })
   @IsString()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 }
 
